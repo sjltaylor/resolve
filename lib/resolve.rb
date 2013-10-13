@@ -4,14 +4,10 @@ require 'active_support/inflector'
 
 module Resolve
   extend self
-  def accessor_name_for(dependency)
-    dependency.to_s.split('/')[-1].underscore.to_sym
-  end
   def satisfy(object, opts={})
     return object unless object.respond_to?(:dependencies)
-    object.dependencies.each do |dependency|
-      name = accessor_name_for(dependency)
-      dependency = opts[name] || resolve(dependency, opts)
+    object.dependencies.each do |name|
+      dependency = opts[name] || resolve(name, opts)
       object.send("#{name}=", dependency)
     end
     return object

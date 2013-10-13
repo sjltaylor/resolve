@@ -23,11 +23,6 @@ describe Resolve do
         resolve('test_service1').should be_instance_of TestService1
       end
     end
-    describe 'called with namespaced name' do
-      it 'resolve to an instance of the denoted class' do
-        resolve('test_namespace/service1').should be_instance_of TestNamespace::Service1
-      end
-    end
 
     describe 'when I dont specify any options' do
       it 'defaults to an empty hash' do
@@ -66,28 +61,6 @@ describe Resolve do
     end
   end
 
-  describe '#accessor_name_for' do
-    def accessor_name_for(dependency)
-      Resolve.accessor_name_for(dependency)
-    end
-
-    context 'from a symbol' do
-      it 'returns the symbol' do
-        accessor_name_for(:dependency_described_by_symbol).should be :dependency_described_by_symbol
-      end
-    end
-    context 'from a string' do
-      it 'returns a symbol version of the string' do
-        accessor_name_for('dependency_described_by_string').should == :dependency_described_by_string
-      end
-    end
-    context 'the dependency is namespaced' do
-      it 'uses the last segment of the name' do
-        accessor_name_for('this/depended/important_service').should == :important_service
-      end
-    end
-  end
-
   describe '#satisfy' do
     let(:options) { {} }
     before(:all) do
@@ -97,11 +70,11 @@ describe Resolve do
 
     let(:satisfied_service) { Resolve.satisfy(TestService3.allocate, options) }
     let(:test_service2) { double(:test_service2) }
-    let(:service1) { double(:service1) }
+    let(:test_service1) { double(:test_service1) }
 
     before(:each) do
       Resolve.stub(:resolve).with(:test_service2, options).and_return(test_service2)
-      Resolve.stub(:resolve).with('test_namespace/service1', options).and_return(service1)
+      Resolve.stub(:resolve).with('test_service1', options).and_return(test_service1)
     end
 
     before(:each) { satisfied_service }
@@ -119,10 +92,10 @@ describe Resolve do
     context 'with dependencies which are not provided in opts' do
       it 'are resolved with #resolve' do
         Resolve.should have_received(:resolve).with(:test_service2, options)
-        Resolve.should have_received(:resolve).with('test_namespace/service1', options)
+        Resolve.should have_received(:resolve).with('test_service1', options)
       end
       it 'assigns them to the instances attributes' do
-        satisfied_service.service1.should be service1
+        satisfied_service.test_service1.should be test_service1
         satisfied_service.test_service2.should be test_service2
       end
     end

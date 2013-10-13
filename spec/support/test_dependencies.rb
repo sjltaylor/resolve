@@ -1,10 +1,5 @@
 require 'resolve/class'
 
-module TestNamespace
-  class Service1
-  end
-end
-
 class TestService1
 end
 
@@ -16,7 +11,7 @@ class TestService2
 end
 
 class TestService3
-  depends_on :test_service2, 'test_namespace/service1'
+  depends_on :test_service2, 'test_service1'
 end
 
 class TestService4

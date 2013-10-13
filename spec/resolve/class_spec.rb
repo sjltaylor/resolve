@@ -6,7 +6,6 @@ describe Class do
   let(:dependencies) do
     [
       :test_dependency,
-      :'test_dependency/service',
       'test_service1',
       :test_service2,
       :my_service
@@ -44,23 +43,21 @@ describe Class do
       it 'raises a NameError noting that more than one dependency has the same name' do
         expect do
           depends_on(colliding_dependencies)
-        end.to raise_error(NameError, "more than one dependency of name 'test_dependency'")
+        end.to raise_error(NameError, "dependency 'test_dependency' is declared more than once")
       end
     end
 
     describe 'dependency accessors' do
-      let(:dependencies) { [double(:dependency)] }
-      before(:each) { Resolve.stub(:accessor_name_for).and_return('a_dependency') }
+      let(:dependencies) { [:a_dependency] }
       before(:each) { depends_on }
 
       def instance_methods
         klass.public_instance_methods - Object.public_instance_methods
       end
 
-      it 'uses the name returned by Resolve#dependency_name as the accessor name' do
+      it 'uses the dependency name as the accessor name' do
         instance_methods.should include(:a_dependency)
         instance_methods.should include(:a_dependency=)
-        Resolve.should have_received(:accessor_name_for).with(dependencies[0])
       end
     end
 
@@ -68,6 +65,34 @@ describe Class do
       it 'returns the dependencies for the class' do
         depends_on
         klass.new.dependencies.should == dependencies
+      end
+    end
+  end
+
+  describe '#resolve' do
+    before(:all) do
+      # see the following required file for example definitions
+      require 'support/test_dependencies'
+    end
+    before(:each) do
+      Resolve.stub(:resolve)
+    end
+    it 'returns the result of Resolve.resove' do
+      expected_return = double(:expected_return)
+      Resolve.stub(:resolve).and_return(expected_return)
+      TestService1.resolve.should be expected_return
+    end
+    describe 'without opts' do
+      it 'defaults to an empty hash' do
+        TestService1.resolve
+        Resolve.should have_received(:resolve).with(:test_service1, {})
+      end
+    end
+    describe 'with opts' do
+      it 'defaults to an empty hash' do
+        opts = double(:opts)
+        TestService1.resolve(opts)
+        Resolve.should have_received(:resolve).with(:test_service1, opts)
       end
     end
   end
