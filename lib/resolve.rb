@@ -1,4 +1,5 @@
 require 'resolve/version'
+require 'resolve/class'
 require 'active_support/inflector'
 
 module Resolve
