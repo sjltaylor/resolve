@@ -29,22 +29,31 @@ describe Resolve do
       end
     end
 
-    describe 'arguments' do
-      describe 'opts' do
-        context 'with no options specified' do
-          it 'uses a default value' do
-            expect { resolve(:test_service1) }.not_to raise_error
-          end
-        end
-        context 'with options specified' do
-          it 'passes the options to the newly initialized instance' do
-            test_service4 = double(:test_service4, initialize: nil)
-            TestService4.stub(:allocate).and_return(test_service4)
-            opts = { one: 1 }
-            resolve(:test_service4, opts)
-            test_service4.should have_received(:initialize).with(opts)
-          end
-        end
+    describe 'when I dont specify any options' do
+      it 'defaults to an empty hash' do
+        resolve(:test_service4).opts.should == {}
+      end
+    end
+
+    describe 'when the class specified has a constructor with zero arity' do
+      it 'is invoked without arguments' do
+        inst = resolve(:test_service2)
+        inst.value.should == 123
+      end
+    end
+
+    describe 'when the class specified has a constructor non-zero arity' do
+      it 'is invoked with opts' do
+        opts = double(:opts)
+        inst = resolve(:test_service4, opts)
+        inst.opts.should be opts
+      end
+    end
+
+    describe 'when I do not specify options' do
+      it 'is invoked with opts' do
+        inst = resolve(:test_service4)
+        inst.opts.should  == {}
       end
     end
 
@@ -54,30 +63,6 @@ describe Resolve do
       opts = {}
       resolve(:test_service1, opts)
       Resolve.should have_received(:satisfy).with(allocated_object, opts)
-    end
-
-    describe 'initializing the object' do
-      it 'allocates and satifies the instance first' do
-        allocated_object = double(:allocated_object, initialize: nil)
-        TestService1.stub(:allocate).and_return(allocated_object)
-        Resolve.stub(:satisfy) do |a|
-          a.should_not have_received(:initialize)
-        end
-        resolve(:test_service1)
-      end
-      context 'when the instance does not have an initialize method' do
-        it 'doesnt call initialize' do
-          TestService1.instance_methods.should_not include(:initialize)
-          expect{resolve(:test_service1)}.not_to raise_error
-        end
-      end
-      context 'when the instance defines initialize with zero arity' do
-        it 'calls initialize without opts' do
-          TestService2.private_instance_methods.should include(:initialize)
-          TestService2.instance_method(:initialize).arity.should be 0
-          expect{resolve(:test_service2)}.not_to raise_error
-        end
-      end
     end
   end
 
@@ -104,6 +89,7 @@ describe Resolve do
   end
 
   describe '#satisfy' do
+    let(:options) { {} }
     before(:all) do
       # see the following required file for example definitions
       require 'support/test_dependencies'
@@ -131,8 +117,6 @@ describe Resolve do
       end
     end
     context 'with dependencies which are not provided in opts' do
-      let(:options) { {} }
-
       it 'are resolved with #resolve' do
         Resolve.should have_received(:resolve).with(:test_service2, options)
         Resolve.should have_received(:resolve).with('test_namespace/service1', options)
@@ -140,6 +124,13 @@ describe Resolve do
       it 'assigns them to the instances attributes' do
         satisfied_service.service1.should be service1
         satisfied_service.test_service2.should be test_service2
+      end
+    end
+    context 'when the object to satisfy does not respond to #dependencies' do
+      it 'returns the object' do
+        o = Object.new
+        o.should_not respond_to(:dependencies)
+        Resolve.satisfy(o).should be o
       end
     end
   end

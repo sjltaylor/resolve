@@ -64,16 +64,10 @@ describe Class do
       end
     end
 
-    describe '#dependencies' do
+    describe 'newly defined #dependencies' do
       it 'returns the dependencies for the class' do
         depends_on
         klass.new.dependencies.should == dependencies
-      end
-    end
-
-    describe 'Class#new' do
-      it 'calls Resolve#satisfy with an allocated instance and initializes and returns the result' do
-        pending
       end
     end
   end

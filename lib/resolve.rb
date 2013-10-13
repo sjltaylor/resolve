@@ -7,6 +7,7 @@ module Resolve
     dependency.to_s.split('/')[-1].underscore.to_sym
   end
   def satisfy(object, opts={})
+    return object unless object.respond_to?(:dependencies)
     object.dependencies.each do |dependency|
       name = accessor_name_for(dependency)
       dependency = opts[name] || resolve(dependency, opts)
@@ -19,12 +20,12 @@ module Resolve
     instance = klass.allocate
     satisfy(instance, opts)
 
-    if instance.respond_to? :initialize
+    if instance.private_methods.include? :initialize
       initialize_method = instance.method(:initialize)
       if initialize_method.arity.zero?
-        instance.initialize
+        instance.send(:initialize)
       else
-        instance.initialize(opts)
+        instance.send(:initialize, opts)
       end
     end
 
