@@ -74,12 +74,12 @@ describe Resolve do
 
     before(:each) do
       Resolve.stub(:resolve).with(:test_service2, options).and_return(test_service2)
-      Resolve.stub(:resolve).with('test_service1', options).and_return(test_service1)
+      Resolve.stub(:resolve).with(:test_service1, options).and_return(test_service1)
     end
 
     before(:each) { satisfied_service }
 
-    context 'with dependecies provided in opts' do
+    context 'with dependencies provided in opts' do
       let(:options) { { test_service2: test_service2 } }
 
       it 'does not call resolve' do
@@ -92,11 +92,16 @@ describe Resolve do
     context 'with dependencies which are not provided in opts' do
       it 'are resolved with #resolve' do
         Resolve.should have_received(:resolve).with(:test_service2, options)
-        Resolve.should have_received(:resolve).with('test_service1', options)
+        Resolve.should have_received(:resolve).with(:test_service1, options)
       end
       it 'assigns them to the instances attributes' do
         satisfied_service.test_service1.should be test_service1
         satisfied_service.test_service2.should be test_service2
+      end
+      it 'assigns nil if the dependency is specified explicitly as nil' do
+        options[:test_service1] = nil
+        test_service3 = Resolve.satisfy(TestService3.allocate, options)
+        test_service3.test_service1.should be_nil
       end
     end
     context 'when the object to satisfy does not respond to #dependencies' do

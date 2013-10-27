@@ -1,13 +1,16 @@
 require 'resolve/version'
 require 'resolve/class'
 require 'active_support/inflector'
+require 'active_support/core_ext/hash'
 
 module Resolve
   extend self
   def satisfy(object, opts={})
     return object unless object.respond_to?(:dependencies)
+    opts = opts.symbolize_keys
     object.dependencies.each do |name|
-      dependency = opts[name] || resolve(name, opts)
+      name = name.to_sym
+      dependency = opts.has_key?(name) ? opts[name] : resolve(name, opts)
       object.send("#{name}=", dependency)
     end
     return object
