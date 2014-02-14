@@ -10,6 +10,6 @@ class Class
   end
   def resolve(opts={})
     require 'active_support/inflector'
-    Resolve.resolve(name.underscore.to_sym, opts)
+    Resolve.resolve(self, opts)
   end
 end

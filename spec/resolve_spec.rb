@@ -18,9 +18,9 @@ describe Resolve do
         resolve(:test_service1).should be_instance_of TestService1
       end
     end
-    describe 'called with a string' do
-      it 'resolve to an instance of the denoted class' do
-        resolve('test_service1').should be_instance_of TestService1
+    describe 'called with a class name' do
+      it 'resolve to an instance of the class' do
+        resolve(TestService1).should be_instance_of TestService1
       end
     end
 

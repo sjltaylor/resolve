@@ -68,7 +68,7 @@ describe Class do
     before(:each) do
       Resolve.stub(:resolve)
     end
-    it 'returns the result of Resolve.resove' do
+    it 'returns the result of Resolve.resolve' do
       expected_return = double(:expected_return)
       Resolve.stub(:resolve).and_return(expected_return)
       TestService1.resolve.should be expected_return
@@ -76,14 +76,14 @@ describe Class do
     describe 'without opts' do
       it 'defaults to an empty hash' do
         TestService1.resolve
-        Resolve.should have_received(:resolve).with(:test_service1, {})
+        Resolve.should have_received(:resolve).with(TestService1, {})
       end
     end
     describe 'with opts' do
       it 'defaults to an empty hash' do
         opts = double(:opts)
         TestService1.resolve(opts)
-        Resolve.should have_received(:resolve).with(:test_service1, opts)
+        Resolve.should have_received(:resolve).with(TestService1, opts)
       end
     end
   end
