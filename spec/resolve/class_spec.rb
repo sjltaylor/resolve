@@ -42,9 +42,14 @@ describe Class do
         klass.public_instance_methods - Object.public_instance_methods
       end
 
-      it 'uses the dependency name as the accessor name' do
-        instance_methods.should include(:a_dependency)
-        instance_methods.should include(:a_dependency=)
+      it 'defines a setter' do
+        setter = klass.instance_method(:a_dependency=)
+        setter.arity.should == 1
+      end
+
+      it 'defines a getter' do
+        getter = klass.instance_method(:a_dependency)
+        getter.arity.should == 0
       end
     end
   end
