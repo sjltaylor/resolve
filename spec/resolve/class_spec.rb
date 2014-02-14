@@ -6,15 +6,6 @@ describe Class do
   let(:dependencies) do
     [
       :test_dependency,
-      'test_service1',
-      :test_service2,
-      :my_service
-    ]
-  end
-  let(:names) do
-    [
-      :test_dependency,
-      :service,
       :test_service1,
       :test_service2,
       :my_service
@@ -22,34 +13,30 @@ describe Class do
   end
 
   describe '#depends_on' do
-    let(:return_value) { klass.depends_on(*dependencies) }
-
-    before(:each) do
-      dependencies.each_with_index do |dependency, i|
-        Resolve.stub(:accessor_name_for).with(dependency).and_return(names[i])
-      end
-    end
-
-    def depends_on(dependencies=dependencies)
-      klass.depends_on(*dependencies)
-    end
-
-    it 'takes and returns a list of dependency names' do
-      depends_on.should == dependencies
+    it 'returns #dependencies' do
+      expected_dependencies = [:results]
+      klass.stub(:dependencies) { expected_dependencies }
+      klass.depends_on(:example_dependency).should == expected_dependencies
     end
 
     describe 'when there is a naming collision' do
-      let(:colliding_dependencies) { dependencies * 2 }
-      it 'raises a NameError noting that more than one dependency has the same name' do
-        expect do
-          depends_on(colliding_dependencies)
-        end.to raise_error(NameError, "dependency 'test_dependency' is declared more than once")
+      it 'does not result in duplicates' do
+        klass.depends_on(*(dependencies * 2))
+        klass.dependencies.sort.should == dependencies.sort
+      end
+    end
+
+    describe 'multiple calls' do
+      it 'adds to the dependencies' do
+        klass.depends_on(*dependencies)
+        klass.depends_on :another_thing
+        klass.dependencies.sort.should == dependencies.concat([:another_thing]).sort
       end
     end
 
     describe 'dependency accessors' do
       let(:dependencies) { [:a_dependency] }
-      before(:each) { depends_on }
+      before(:each) { klass.depends_on(*dependencies) }
 
       def instance_methods
         klass.public_instance_methods - Object.public_instance_methods
@@ -60,12 +47,11 @@ describe Class do
         instance_methods.should include(:a_dependency=)
       end
     end
+  end
 
-    describe 'newly defined #dependencies' do
-      it 'returns the dependencies for the class' do
-        depends_on
-        klass.new.dependencies.should == dependencies
-      end
+  describe '#depencies' do
+    it 'returns an empty array by default' do
+      Class.new.dependencies.should == []
     end
   end
 
