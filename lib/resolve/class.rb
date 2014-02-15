@@ -15,7 +15,7 @@ class Class
       superclass.dependencies
     end
 
-    superclass_dependencies + @dependencies
+    (superclass_dependencies + @dependencies).uniq
   end
   def resolve(opts={})
     require 'active_support/inflector'

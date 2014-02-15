@@ -65,6 +65,12 @@ describe Class do
         subklass.depends_on(:another_thing)
         subklass.dependencies.sort.should == (dependencies + [:another_thing]).sort
       end
+      it 'does not duplicate its parents dependencies' do
+        klass.depends_on(*dependencies)
+        subklass = Class.new(klass)
+        subklass.depends_on(*dependencies)
+        subklass.dependencies.sort.should == dependencies.sort
+      end
     end
   end
 
