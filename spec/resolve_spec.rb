@@ -60,7 +60,6 @@ describe Resolve do
       Resolve.should have_received(:satisfy).with(allocated_object, opts)
     end
   end
-
   describe '#satisfy' do
     let(:options) { {} }
     before(:all) do

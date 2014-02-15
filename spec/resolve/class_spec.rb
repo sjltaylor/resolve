@@ -58,6 +58,14 @@ describe Class do
     it 'returns an empty array by default' do
       Class.new.dependencies.should == []
     end
+    describe 'subclassing' do
+      it 'inherits its parents dependencies' do
+        klass.depends_on(*dependencies)
+        subklass = Class.new(klass)
+        subklass.depends_on(:another_thing)
+        subklass.dependencies.sort.should == (dependencies + [:another_thing]).sort
+      end
+    end
   end
 
   describe '#resolve' do
