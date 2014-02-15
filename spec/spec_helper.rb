@@ -3,8 +3,6 @@ $:<<'lib'
 require 'simplecov'
 SimpleCov.start
 
-require 'debugger'
-
 require 'resolve'
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
