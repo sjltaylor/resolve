@@ -1,4 +1,5 @@
 require 'resolve/version'
+require 'resolve/object'
 require 'resolve/class'
 require 'active_support/inflector'
 require 'active_support/core_ext/hash'
