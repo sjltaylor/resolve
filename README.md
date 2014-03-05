@@ -7,6 +7,9 @@ Descision Log
   * or by overriding Kernel#resolve
   * specify dependencies like so: :my_service or if its namespaced :'namespace/service'. you can also use strings
   * options are passed through the entire graph of dependencies
+  * works with included modules
+  * automatically resolvable dependencies must be in the root namespace (no Api::ApiServices for example)
+    * more difficult to determine an accessor name
 
 
 Naming Collisions
@@ -26,9 +29,9 @@ These
 
 Limitations
 
- * Rails convention: if the constant for a named dependency can't be resolved by "my_name".classify.constantize
+ * Rails convention: if the constant for a named dependency can't be resolved by "my_name".camelize.constantize
    then the dependency will have to be resolved manually
-
+ * doesn't work with extend (modules)
 
 
 # Resolve
